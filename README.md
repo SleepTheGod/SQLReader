@@ -6,6 +6,9 @@ git clone https://github.com/SleepTheGod/SQLReader/
 cd SQLReader
 chmod +x app.py
 pip install -r requirements.txt
+pip install Flask==2.3.3
+pip install Werkzeug==2.3.3
+pip install cryptography==39.0.1
 python app.py
 ```
 # Now visit the following
