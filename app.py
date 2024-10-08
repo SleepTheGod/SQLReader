@@ -81,6 +81,17 @@ def process_sql_file(file_path, key):
         flash(f"Error processing file: {str(e)}", 'error')
     return matches
 
+# Function to convert SQL file content to HTML
+def convert_sql_to_html(file_path):
+    html_content = '<html><body><h2>SQL File Content</h2><pre>'
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+            html_content += file.read().replace('<', '&lt;').replace('>', '&gt;')
+    except Exception as e:
+        flash(f"Error reading SQL file: {str(e)}", 'error')
+    html_content += '</pre></body></html>'
+    return html_content
+
 # Home page for file upload
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -98,13 +109,14 @@ def upload_file():
             file.save(file_path)
             key = derive_key(PASSWORD, SALT)
             results = process_sql_file(file_path, key)
+            html_content = convert_sql_to_html(file_path)
             os.remove(file_path)  # Clean up after processing
             flash('File processed successfully!', 'success')
-            return render_template('uploads.html', results=results)
+            return render_template('uploads.html', results=results, html_content=html_content)
         else:
             flash('Invalid file type. Please upload a .sql file.', 'error')
             return redirect(request.url)
-    return render_template('uploads.html', results=None)
+    return render_template('uploads.html', results=None, html_content=None)
 
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
