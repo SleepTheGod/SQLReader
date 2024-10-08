@@ -25,6 +25,7 @@
             border: none;
             padding: 10px 20px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #218838;
@@ -34,24 +35,48 @@
             padding: 20px;
             border: 1px solid #dee2e6;
             margin-top: 20px;
+            border-radius: 5px;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #28a745;
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Upload Your SQL File</h1>
     <form action="/" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".sql">
+        <input type="file" name="file" accept=".sql" required>
         <br>
         <button type="submit">Upload and Process</button>
     </form>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="message {% if message[0] == 'error' %}error{% else %}success{% endif %}">
+                <ul>
+                {% for message in messages %}
+                    <li>{{ message[1] }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endwith %}
+
     {% if results %}
         <div class="results">
-            <h2>Decryption Results:</h2>
+            <h2>Results:</h2>
             <ul>
-                {% for result in results %}
-                    <li>{{ result }}</li>
-                {% endfor %}
+            {% for result in results %}
+                <li>{{ result }}</li>
+            {% endfor %}
             </ul>
         </div>
     {% endif %}
