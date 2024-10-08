@@ -99,11 +99,11 @@ def upload_file():
             key = derive_key(PASSWORD, SALT)
             results = process_sql_file(file_path, key)
             os.remove(file_path)  # Clean up after processing
-            return render_template('index.html', results=results)
+            return render_template('uploads.html', result=results)
         else:
             flash('Invalid file type. Please upload a .sql file.')
             return redirect(request.url)
-    return render_template('index.html', results=None)
+    return render_template('uploads.html', result=None)
 
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
