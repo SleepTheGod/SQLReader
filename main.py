@@ -1,6 +1,5 @@
 import os
 import base64
-import hashlib
 from flask import Flask, request, render_template, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -12,12 +11,12 @@ from cryptography.exceptions import InvalidSignature
 from secrets import token_bytes
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
+app.config['SECRET_KEY'] = 'supersecretkey'  # Change this in production!
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 PASSWORD = b'strongpassword'
-SALT = os.urandom(16)  # Store salt securely
+SALT = os.urandom(16)  # Store this securely
 
 # Key derivation function
 def derive_key(password, salt, iterations=100000):
@@ -96,10 +95,16 @@ def upload_file():
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
+
             key = derive_key(PASSWORD, SALT)
             results = process_sql_file(file_path, key)
             os.remove(file_path)  # Clean up after processing
-            return render_template('index.html', results=results)  # Render results on the same page
+
+            if results:
+                return render_template('index.html', results=results)
+            else:
+                flash('No matches found in the SQL file.')
+                return redirect(request.url)
         else:
             flash('Invalid file type. Please upload a .sql file.')
             return redirect(request.url)
