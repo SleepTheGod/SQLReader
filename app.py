@@ -78,7 +78,7 @@ def process_sql_file(file_path, key):
                     if decrypted_str in line:
                         matches.append(f"Found '{decrypted_str}' in: {line.strip()}")
     except Exception as e:
-        print(f"Error: {e}")
+        flash(f"Error processing file: {str(e)}", 'error')
     return matches
 
 # Home page for file upload
@@ -86,11 +86,11 @@ def process_sql_file(file_path, key):
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file part', 'error')
             return redirect(request.url)
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file')
+            flash('No selected file', 'error')
             return redirect(request.url)
         if file and file.filename.endswith('.sql'):
             filename = secure_filename(file.filename)
@@ -99,11 +99,12 @@ def upload_file():
             key = derive_key(PASSWORD, SALT)
             results = process_sql_file(file_path, key)
             os.remove(file_path)  # Clean up after processing
-            return render_template('uploads.html', result=results)
+            flash('File processed successfully!', 'success')
+            return render_template('uploads.html', results=results)
         else:
-            flash('Invalid file type. Please upload a .sql file.')
+            flash('Invalid file type. Please upload a .sql file.', 'error')
             return redirect(request.url)
-    return render_template('uploads.html', result=None)
+    return render_template('uploads.html', results=None)
 
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
